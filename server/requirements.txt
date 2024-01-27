@@ -1,2 +1,3 @@
 fastapi
 beanie
+uvicorn[standard]
