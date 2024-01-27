@@ -55,3 +55,9 @@ async def add_item(token : str, flight_data_id : str, input : CheckedItemUpdateI
 
     await data.save()
     return data
+
+@router.get("/flight_data")
+async def get_flight_data(token : str, flight_data_id : str) ->FlightData:
+    data = await FlightData.find_one(FlightData.profile.token == token, FlightData.id == PydanticObjectId(flight_data_id), fetch_links=True)
+    return data 
+    
