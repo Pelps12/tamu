@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from beanie import PydanticObjectId
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
@@ -60,4 +60,8 @@ async def add_item(token : str, flight_data_id : str, input : CheckedItemUpdateI
 async def get_flight_data(token : str, flight_data_id : str) ->FlightData:
     data = await FlightData.find_one(FlightData.profile.token == token, FlightData.id == PydanticObjectId(flight_data_id), fetch_links=True)
     return data 
+
+@router.get("/flights")
+async def flight_list() -> List[FlightData]:
+    return await FlightData.find_all().to_list()
     
