@@ -133,7 +133,7 @@ class MainLayout(BoxLayout):
         json_data = {
             "data": [
             {
-                "zone": i,
+                "zone": 35,
                 "items": items
             } for i, items in enumerate(items_in_zone)
         ]
