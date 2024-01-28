@@ -18,6 +18,11 @@ class FlightData(Document):
     profile : Link[Profile]
     flight_number : int
     seat_number : int
+    class Settings:
+        use_cache = True
+        cache_expiration_time = datetime.timedelta(seconds=10)
+        cache_capacity = 5
+
 
 class FlightDataOut(BaseModel):
     items : List[CheckedItem] = []
