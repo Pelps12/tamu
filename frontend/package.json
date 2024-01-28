@@ -13,10 +13,13 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@expo-google-fonts/changa-one": "^0.2.3",
     "@expo/vector-icons": "^14.0.0",
     "@react-navigation/native": "^6.0.2",
+    "@tanstack/react-query": "^5.17.19",
     "expo": "~50.0.4",
     "expo-font": "~11.10.2",
+    "expo-image": "~1.10.5",
     "expo-linking": "~6.2.2",
     "expo-router": "~3.4.6",
     "expo-splash-screen": "~0.26.4",
