@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       paddingHorizontal: 16,
       paddingTop: 40,
-      borderBottomWidth: 1,
+
 
     },
     title: {

@@ -4,6 +4,7 @@ import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 import BBText from '@/components/utils/BBText';
 import { useTheme } from '@react-navigation/native';
+import React from 'react';
 
 export default function TabOneScreen() {
   const theme = useTheme();
