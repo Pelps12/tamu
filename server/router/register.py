@@ -10,8 +10,10 @@ class RegisterInput(BaseModel):
 
 @router.post("/register")
 async def register(input : RegisterInput)->Profile:
-    profile = Profile(name= input.name, seat="Empty")
-    await profile.save()
+    profile = await Profile.find_one(Profile.name == input.name)
+    if not profile:
+        profile = Profile(name= input.name, seat="Empty")
+        await profile.save()
     return profile
 
 @router.get("/")
