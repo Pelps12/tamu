@@ -94,6 +94,8 @@ async def process_items(input : OpenCVDataInput) -> List[FlightData]:
         for item in data.items:
             cache[item] = 1 if not cache.get(item) else cache[item] +1
         from_mongo = await FlightData.find_one(FlightData.flight_number == flight_number, FlightData.seat_number == data.zone , fetch_links=True)
+        if not from_mongo:
+            return []
         mongo_cache = {}
         if from_mongo:
             for item in from_mongo.items:
