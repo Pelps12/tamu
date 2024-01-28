@@ -97,7 +97,7 @@ async def process_items(input : OpenCVDataInput) -> List[FlightData]:
         mongo_cache = {}
         if from_mongo:
             for item in from_mongo.items:
-                mongo_cache[item] = 1 if not mongo_cache.get(item) else mongo_cache[item] +1
+                mongo_cache[item.item] = 1 if not mongo_cache.get(item.item) else mongo_cache[item.item] +1
         
         for i, item  in enumerate(cache):
             if item == "person":
