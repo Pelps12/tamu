@@ -1,47 +1,58 @@
 import Head from "next/head";
 import Image from 'next/image';
-import { Inter } from "next/font/google";
+import {
+  useQuery
+} from '@tanstack/react-query';
 import styles from "components/styles/Home.module.css";
+import { Config } from "components/utils/Config";
 
-const inter = Inter({ subsets: ["latin"] });
-
-interface LostItem {
+interface Profile {
+  id: string;
   name: string;
-  user: string;
-  profilePicture: string;
-  itemPicture: string;
+  token: string;
 }
+interface LostItem {
+  item: string;
+  image_link: string;
+  checked_off: boolean;
+  item_id: string;
+  timestamp: string;
+}
+
+interface Data {
+  flight_number: number;
+  items: LostItem[];
+  profile: Profile;
+  seat_number: number;
+}
+
 // ... (previous imports)
 
 export default function Home() {
 
+
+  const fetchData = async () => {
+    const res = await fetch(`${Config.API_URL}/flight/lost_items`)
+    return res.json()
+  }
+
+  const { isPending, error, data } = useQuery<Data[]>({
+    queryKey: ['lostItems'],
+    queryFn: fetchData}
+)
+  let lostItems: LostItem[] = [];
+  if(data){
+    console.log(data);
+    console.log(data.flatMap((item) => item.items))
+    lostItems = data.flatMap((items) => items.items).filter((item) => item.item !== 'nothing');
+  }
+
+  if(isPending) return 'Loading...'
   
-  const lostItems: LostItem[] = [{
-    name: 'Bag',
-    user: 'James',
-    profilePicture: 'https://img.freepik.com/premium-photo/smiling-man-holding-smartphone_107420-20811.jpg?size=626&ext=jpg&ga=GA1.1.1448711260.1706313600&semt=ais',
-    itemPicture: 'https://www.evocsports.com/media/23/32/76/1629365056/401407100-GEAR-BAG-35.jpg'
-  }, {
-    name: 'Bag',
-    user: 'James',
-    profilePicture: 'https://img.freepik.com/premium-photo/smiling-man-holding-smartphone_107420-20811.jpg?size=626&ext=jpg&ga=GA1.1.1448711260.1706313600&semt=ais',
-    itemPicture: 'https://www.evocsports.com/media/23/32/76/1629365056/401407100-GEAR-BAG-35.jpg'
-  }, {
-    name: 'Bag',
-    user: 'James',
-    profilePicture: 'https://img.freepik.com/premium-photo/smiling-man-holding-smartphone_107420-20811.jpg?size=626&ext=jpg&ga=GA1.1.1448711260.1706313600&semt=ais',
-    itemPicture: 'https://www.evocsports.com/media/23/32/76/1629365056/401407100-GEAR-BAG-35.jpg'
-  }, {
-    name: 'Bag',
-    user: 'James',
-    profilePicture: 'https://img.freepik.com/premium-photo/smiling-man-holding-smartphone_107420-20811.jpg?size=626&ext=jpg&ga=GA1.1.1448711260.1706313600&semt=ais',
-    itemPicture: 'https://www.evocsports.com/media/23/32/76/1629365056/401407100-GEAR-BAG-35.jpg'
-  }, {
-    name: 'Bag',
-    user: 'James',
-    profilePicture: 'https://img.freepik.com/premium-photo/smiling-man-holding-smartphone_107420-20811.jpg?size=626&ext=jpg&ga=GA1.1.1448711260.1706313600&semt=ais',
-    itemPicture: 'https://www.evocsports.com/media/23/32/76/1629365056/401407100-GEAR-BAG-35.jpg'
-  }, ];
+  if(error) return 'An error has occurred ' + error.message
+
+  
+
 
   return (
     <>
@@ -68,24 +79,25 @@ export default function Home() {
             height: '100%'
           }}>
             <div className={styles.horizontalScroll}>
-              {lostItems.map((item, index) => (
+              {lostItems?.map((dataItem, index) => (
                 <div key={index} className={styles.itemCard}>
                   <div style={{ flexDirection: 'row', display: 'flex', alignItems: 'center',
-                justifyContent: 'space-around'}}>
-                    <h2>Item: {item.name}</h2>
-                    <div className={styles.itemDetails}>
-                      <img src={item.profilePicture} alt={item.name} width={48} height={48} className={styles.profileImage} />
-                      <h2>{item.user}</h2>
+                justifyContent: 'space-around'}}>{/*@ts-ignore */}
+                    <h2>Item: {dataItem.item}</h2>
+                    <div className={styles.itemDetails}> 
                     </div>
                   </div>
-                  
-                  <img src={item.itemPicture} alt={item.user} width={120} height={120} className={styles.itemImage} />
+                  {
+                     dataItem.image_link ? <img src={dataItem.image_link} alt={dataItem.item} width={120} height={120} className={styles.itemImage} /> :
+                     <div></div>
+                  }
+                 
                 </div>
               ))}
             </div>
           </div>
         </div>
       </main>
-    </>
+      </>
   );
 }
