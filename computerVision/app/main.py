@@ -13,6 +13,8 @@ import supervision as sv
 import numpy as np
 from ultralytics import YOLO
 import torch
+import time
+import requests
 
 import os
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2' #Required for Nvidia GPU
@@ -21,8 +23,8 @@ kv_file = Path(__file__).resolve().parent / "mykv.kv"
 Builder.load_file(str(kv_file))
 
 cap = cv2.VideoCapture(CAMERA_SOURCE)
-model = torch.hub.load('ultralytics/yolov5', 'yolov5n')
-
+model = YOLO('C:\\Users\\oluwa\\Desktop\\Coding\\hackathons\\tamu\\computerVision\\training\datasets\\runs\detect\\train8\weights\\best.pt')
+class_labels =  ['bag', 'bottle', 'card', 'charger', 'clothes', 'glasses', 'hat', 'headphone', 'key', 'laptop', 'nothing', 'phone', 'wallet', 'watch']
 class CursorPopup(Popup):
     def __init__(self, image_path, callback, **kwargs):
         super().__init__(**kwargs)
@@ -72,6 +74,7 @@ class MainLayout(BoxLayout):
         ]
         self.zones_colors = [sv.Color.RED, sv.Color.GREEN, sv.Color.BLUE, sv.Color.YELLOW]
         self.image_path = './temp/cameraTester.png'
+        self.last_elapsed_time = time.time()
 
     def reset_zone(self):
         self.zones = [None, None, None, None]
@@ -122,6 +125,30 @@ class MainLayout(BoxLayout):
                 cv2.polylines(frame, [zone], True, self.zones_colors[i].as_bgr(), 2)
         return frame
 
+    def send_data(self, items_in_zone):
+        if len(items_in_zone) == 0:
+            return
+        url = "https://testing.rondevu.app/flight/items"
+
+        json_data = {
+            "data": [
+            {
+                "zone": i,
+                "items": items
+            } for i, items in enumerate(items_in_zone)
+        ]
+        }
+        response = requests.post(url, json=json_data)
+
+        if response.status_code == 200:
+            print("Request was successful")
+            print("Response content:", response.json())
+        else:
+            print(f"Request failed with status code: {response.status_code}")
+
+        
+
+
     def model_inference(self, frame):
         #Change the zones to np.int32
         polygons = []
@@ -145,10 +172,9 @@ class MainLayout(BoxLayout):
         zone_annotators = [
             sv.PolygonZoneAnnotator(
                 zone=zone, 
-                color=self.zones_colors[index], 
-                thickness=4,
-                text_thickness=8,
-                text_scale=4
+                color=self.zones_colors[index],
+                thickness=0,
+                text_scale=0
             )
             for index, zone
             in enumerate(zones)
@@ -166,17 +192,35 @@ class MainLayout(BoxLayout):
             in range(len(polygons))
         ]
 
-        results = model(frame)
-        detections = sv.Detections.from_yolov5(results)
+        results = model(frame, imgsz = 640)[0]
+        detections = sv.Detections.from_ultralytics(results)
         detections = detections[(detections.confidence > 0.3)]
 
-
+        items_in_zone = []
 
         for zone, zone_annotator, label_annotator in zip(zones, zone_annotators, label_annotator):
             mask = zone.trigger(detections=detections)
+            
+            frame = zone_annotator.annotate(
+                scene=frame, 
+                label=""
+                )
+            
             detections_filtered = detections[mask]
-            frame = label_annotator.annotate(scene=frame, detections=detections_filtered)
-            frame = zone_annotator.annotate(scene=frame)
+
+            current_label = [class_labels[class_id] for class_id in detections_filtered.class_id]
+
+            items_in_zone.append(current_label)
+
+            frame = label_annotator.annotate(scene=frame, 
+                                             detections=detections_filtered,
+                                             labels = current_label
+                                             )
+        if time.time() - self.last_elapsed_time >= 2.0:
+            self.last_elapsed_time = time.time()
+            self.send_data(items_in_zone)
+
+            
         
         return frame
         
@@ -188,9 +232,10 @@ class MainLayout(BoxLayout):
     def main_process(self, dt):
         ret, frame = cap.read()
         if ret:
+            frame = cv2.resize(frame, (640,480))
             frame = self.model_inference(frame)
             cv2.imwrite(self.image_path, frame)
-
+            
 
             self.ids.display.source = self.image_path
             self.ids.display.reload()
