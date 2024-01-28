@@ -6,11 +6,11 @@ router = APIRouter()
 
 class RegisterInput(BaseModel):
     name : str
-    # seat : str
+    #seat : str
 
 @router.post("/register")
 async def register(input : RegisterInput)->Profile:
-    profile = Profile(name= input.name, seat=input.seat)
+    profile = Profile(name= input.name, seat="Empty")
     await profile.save()
     return profile
 

@@ -60,6 +60,10 @@ async def add_item(token : str, flight_data_id : str, input : CheckedItemUpdateI
 async def get_flight_data(token : str, flight_data_id : str) ->FlightData:
     data = await FlightData.find_one(FlightData.profile.token == token, FlightData.id == PydanticObjectId(flight_data_id), fetch_links=True)
     return data 
+@router.get("/flight_data_by_number")
+async def get_flight_data(token : str, flight_number : int) ->FlightData:
+    data = await FlightData.find_one(FlightData.profile.token == token, FlightData.flight_number == PydanticObjectId(flight_number), fetch_links=True)
+    return data 
 
 @router.get("/flights")
 async def flight_list() -> List[FlightData]:
