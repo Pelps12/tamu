@@ -44,7 +44,7 @@ async def add_flight(token : str, input : FlightInput) ->Optional[FlightDataOut]
     profile = await Profile.find_one(Profile.token == token)
     if not profile:
         return None
-    data = await FlightData.find_one(FlightData.flight_number == input.flight_number, FlightData.profile.token == token)
+    data = await FlightData.find_one(FlightData.flight_number == input.flight_number, FlightData.profile.token == token, fetch_links=True)
     if not data:
         data= FlightData(profile=profile, flight_number=input.flight_number, seat_number=input.seat_number)
         await data.save()
@@ -97,7 +97,7 @@ async def process_items(input : OpenCVDataInput) -> List[FlightData]:
         mongo_cache = {}
         if from_mongo:
             for item in from_mongo.items:
-                mongo_cache[item] = 1 if not mongo_cache.get(item) else mongo_cache[item] +1
+                mongo_cache[item.item] = 1 if not mongo_cache.get(item.item) else mongo_cache[item.item] +1
         
         for i, item  in enumerate(cache):
             if item == "person":
