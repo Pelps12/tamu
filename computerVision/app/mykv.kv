@@ -1,0 +1,46 @@
+#
+<MainLayout>:
+    orientation: 'vertical'
+    BoxLayout:
+        orientation: 'horizontal'
+        size_hint: (1, 0.7)
+        Image:
+            id: display# Replace this with your video frame source
+            source: 'placeholder.png'
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: (0.3, 1)
+
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: 0.1
+                Label:
+                    text: 'Numbers of Points:'
+                    size_hint: (0.7, 1)
+                Spinner:
+                    id: points
+                    text: '4'
+                    values: ['3', '4', '5', '6']
+        
+            Button:
+                text: 'Set Zone 0'
+                size_hint_y: 0.1
+                on_release: root.set_zone(0)
+            
+            Button:
+                text: 'Set Zone 1'
+                size_hint_y: 0.1
+                on_release: root.set_zone(1)
+            Button:
+                text: 'Set Zone 2'
+                size_hint_y: 0.1
+                on_release: root.set_zone(2)
+            
+            Button:
+                text: 'Set Zone 3'
+                size_hint_y: 0.1
+                on_release: root.set_zone(3)
+            
+
+            
