@@ -1,4 +1,4 @@
-CAMERA_SOURCE = 0
+CAMERA_SOURCE = 2
 
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
@@ -11,11 +11,17 @@ import os
 from pathlib import Path
 import supervision as sv
 import numpy as np
+from ultralytics import YOLO
+import torch
+
+import os
+os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2' #Required for Nvidia GPU
 
 kv_file = Path(__file__).resolve().parent / "mykv.kv"
 Builder.load_file(str(kv_file))
 
 cap = cv2.VideoCapture(CAMERA_SOURCE)
+model = torch.hub.load('ultralytics/yolov5', 'yolov5n')
 
 class CursorPopup(Popup):
     def __init__(self, image_path, callback, **kwargs):
@@ -64,8 +70,11 @@ class MainLayout(BoxLayout):
             #np.array([[0, 0], [100, 0], [100, 100], [0, 100]]),  # Sample square zone
             None, None, None, None
         ]
-        self.zones_colors = [(0, 0, 255), (0, 255, 0), (255, 0, 0), (255, 255, 0)]
+        self.zones_colors = [sv.Color.RED, sv.Color.GREEN, sv.Color.BLUE, sv.Color.YELLOW]
         self.image_path = './temp/cameraTester.png'
+
+    def reset_zone(self):
+        self.zones = [None, None, None, None]
 
     def set_zone(self, zone):
         #Make the cursor popup open
@@ -77,12 +86,12 @@ class MainLayout(BoxLayout):
             frame = cv2.imread(self.image_path)
             for i in range(len(coords)):
                 x, y = coords[i]
-                cv2.circle(frame, (int(x * frame.shape[1]), int(y * frame.shape[0])), 5, self.zones_colors[zone], -1)
+                cv2.circle(frame, (int(x * frame.shape[1]), int(y * frame.shape[0])), 5, self.zones_colors[zone].as_bgr(), -1)
             cv2.imwrite(self.image_path, frame)
             cursor_popup.image_reload()
             
             if len(coords) == int(self.ids.points.text):
-                self.zones[zone] = np.array(coords)
+                self.zones[zone] = coords
                 cursor_popup.dismiss()
                 #Enable the mainlayout's all touch events
                 #Wait for 1 second to prevent the cursor popup from being opened again
@@ -110,17 +119,81 @@ class MainLayout(BoxLayout):
                 zone[:, 0] *= frame.shape[1]  # Multiply x-coordinates by image width
                 zone[:, 1] *= frame.shape[0]  # Multiply y-coordinates by image height
                 zone = zone.astype(np.int32)  # Convert coordinates to integers
-                cv2.polylines(frame, [zone], True, self.zones_colors[i], 2)
+                cv2.polylines(frame, [zone], True, self.zones_colors[i].as_bgr(), 2)
         return frame
+
+    def model_inference(self, frame):
+        #Change the zones to np.int32
+        polygons = []
+        for i in range(len(self.zones)):
+            if self.zones[i] is not None:
+                zone = np.array(self.zones[i])
+                zone[:, 0] *= frame.shape[1]  # Multiply x-coordinates by image width
+                zone[:, 1] *= frame.shape[0]  # Multiply y-coordinates by image height
+                zone = zone.astype(np.int32)  # Convert coordinates to integers
+                polygons.append(zone)
+        if len(polygons) <= 0:
+            return frame
+        zones = [
+            sv.PolygonZone(
+                polygon=polygon, 
+                frame_resolution_wh= [frame.shape[1], frame.shape[0]]
+            )
+            for polygon
+            in polygons
+        ]
+        zone_annotators = [
+            sv.PolygonZoneAnnotator(
+                zone=zone, 
+                color=self.zones_colors[index], 
+                thickness=4,
+                text_thickness=8,
+                text_scale=4
+            )
+            for index, zone
+            in enumerate(zones)
+        ]
+
+        box_annotators = [
+            sv.BoxAnnotator(
+                color=self.zones_colors[index], 
+                thickness=4, 
+                text_thickness=4, 
+                text_scale=2
+                )
+            for index
+            in range(len(polygons))
+        ]
+        results = model(frame)
+        detections = sv.Detections.from_yolov5(results)
+        detections = detections[(detections.confidence > 0.5)]
+
+
+
+        for zone, zone_annotator, box_annotator in zip(zones, zone_annotators, box_annotators):
+            mask = zone.trigger(detections=detections)
+            detections_filtered = detections[mask]
+            frame = box_annotator.annotate(scene=frame, detections=detections_filtered, skip_label=True)
+            frame = zone_annotator.annotate(scene=frame)
+        
+        return frame
+        
+
+
+        
+
 
     def main_process(self, dt):
         ret, frame = cap.read()
         if ret:
-            frame = self.draw_zone(frame)
-
+            frame = self.model_inference(frame)
             cv2.imwrite(self.image_path, frame)
+
+
             self.ids.display.source = self.image_path
             self.ids.display.reload()
+    
+
 
 
 class MyApp(App):
