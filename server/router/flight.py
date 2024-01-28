@@ -5,8 +5,10 @@ from unittest import skip
 from beanie import PydanticObjectId
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
+from sympy import primitive
 from models.profile import Profile
 from models.flight import FlightData, FlightDataOut, CheckedItem
+from beanie.operators import Exists, Where, Nor, Size, Not
 
 router = APIRouter()
 
@@ -121,5 +123,7 @@ async def process_items(input : OpenCVDataInput) -> List[FlightData]:
     return res
 
 @router.get("/lost_items")
-async def get_lost_items()->list[CheckedItem]:
-    data = FlightData.find_one()
+async def get_lost_items()->list[FlightData]:
+    data = await FlightData.find(Not(Size(FlightData.items, 0)), fetch_links=True).to_list()
+    
+    return data
