@@ -124,6 +124,6 @@ async def process_items(input : OpenCVDataInput) -> List[FlightData]:
 
 @router.get("/lost_items")
 async def get_lost_items()->list[FlightData]:
-    data = await FlightData.find(Not(Size(FlightData.items, 0)), fetch_links=True).to_list()
+    data = await FlightData.find(Not(Size(FlightData.items, 0)), FlightData.flight_number == 1, fetch_links=True).to_list()
     
     return data
