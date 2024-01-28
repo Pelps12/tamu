@@ -1,3 +1,4 @@
+import datetime
 import profile
 from typing import List, Optional
 from beanie import Document, Link, PydanticObjectId
@@ -10,6 +11,7 @@ class CheckedItem(BaseModel):
     image_link : Optional[str]
     checked_off:bool = False
     item_id : str = Field(default_factory=generate_string)
+    timestamp: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
 
 class FlightData(Document):
     items : List[CheckedItem] = []
