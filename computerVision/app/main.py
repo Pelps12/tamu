@@ -121,6 +121,7 @@ class MainLayout(BoxLayout):
             cv2.imwrite(self.image_path, frame)
             self.ids.display.source = self.image_path
             self.ids.display.reload()
+        
 
 
 class MyApp(App):

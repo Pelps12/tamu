@@ -5,7 +5,6 @@ from unittest import skip
 from beanie import PydanticObjectId
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
-from sympy import primitive
 from models.profile import Profile
 from models.flight import FlightData, FlightDataOut, CheckedItem
 from beanie.operators import Exists, Where, Nor, Size, Not

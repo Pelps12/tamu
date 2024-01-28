@@ -13,7 +13,7 @@ import BBTextInput from '@/components/utils/BBTextInput';
 import { useLocalSearchParams, useGlobalSearchParams, Link } from 'expo-router';
 import BouncingImage from '@/components/BouncingImage';
 import AntDesign from '@expo/vector-icons/build/AntDesign';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 
 const  waitforme = (millisec: number) => { 
     return new Promise(resolve => { 
@@ -26,19 +26,22 @@ export default function TabOneScreen() {
   const theme = useTheme();
   const local = useLocalSearchParams();
 
-  const getObjectIcon = (objectName: "phone" |"wallet"| "bag" | "watch") => {
+  const getObjectIcon = (objectName: "phone" |"wallet"| "bag" | "watch"| "headphone") => {
     switch (objectName) {
       case 'phone':
         return <AntDesign name="phone" size={30} color="black" />;
       case 'wallet':
-        return <AntDesign name="phone" size={24} color="black" />;
+        return <AntDesign name="wallet" size={30} color="black" />;
       case 'bag':
         return <Ionicons name="bag-outline" size={30} color="black" />;
       case 'watch':
         return <AntDesign name="phone" size={24} color="black" />;
+
+      case 'headphone':
+        return <Feather name="headphones" size={30} color="black" />
       default:
         // Return a default icon or handle the case where no match is found
-        return <AntDesign name="phone" size={24} color="black" />;
+        return   <AntDesign name="question" size={30} color="black" />;
     }
   };
 
@@ -89,7 +92,7 @@ export default function TabOneScreen() {
     queryFn: getUserList,
     queryKey: ["userList"],
     enabled: !!local?.seat_id,
-    refetchInterval: 20000,
+    refetchInterval: 10000,
   });
   if(isLoading){
     return <BouncingImage/>
@@ -118,21 +121,7 @@ export default function TabOneScreen() {
     <FlatList
     contentContainerStyle={{ justifyContent: "flex-start", width: "100%", marginHorizontal: 10}}
     style={{width: "100%"}}
-    data={[{item:
-      "phone",
-      image_link:
-      "string",
-      checked_off:
-      false,
-      item_id:
-      "Md291Bhrw6D3QpcD7BjA"}, {item:
-        "bag",
-        image_link:
-        "string",
-        checked_off:
-        false,
-        item_id:
-        "Md291Bhrw6D3QpcD7BjA"}]}
+    data={data.items?.filter(item => item.item !== "nothing")}
     renderItem= {(item) => <View style={styles.item}>
       {getObjectIcon(item.item.item)}
       <BBText style={{fontSize: 30}}>{capitalizeFirstLetter(item.item.item)}</BBText>

@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert, Pressable } from 'react-native';
 import {Image} from "expo-image"
 import { useTheme } from '@react-navigation/native';
 import { AntDesign } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { getValueFor, remove } from './utils/securestore';
 import BBText from './utils/BBText';
 type OurProps = {
@@ -41,10 +41,15 @@ const Header: React.FC<OurProps> = ({page}) => {
      {router.canGoBack() && <View style={{alignItems: "center", gap: 5}}><AntDesign name="back" size={30} color="white" onPress={() => router.back()}/>
      <AntDesign onPress={() => handleLougout()} name="logout" size={20} color="white" style={{marginTop: 10}}/></View>}
      {name && page && <BBText style={{fontSize: 25, color: "white"}}>Hello {name}</BBText>}
-      <Image
+     <Link href={{
+      pathname: "/pickup",
+     }}>
+     <Image
           source={require('../assets/images/logo.svg')} // replace with the actual path to your image
           style={styles.logo}
         />
+     </Link>
+
         
      
       

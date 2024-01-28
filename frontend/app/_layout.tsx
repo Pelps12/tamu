@@ -58,6 +58,7 @@ function RootLayoutNav() {
       <Stack>
       <Stack.Screen name="signin" options={{headerShown: false}} />
         <Stack.Screen name="seat_entry" options={{header: () => <Header/>}} />
+        <Stack.Screen name="pickup" options={{header: () => <Header/>}} />
         <Stack.Screen name = "home" options={{header: () => <Header page='home'/>}}/>
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
