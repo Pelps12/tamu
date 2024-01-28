@@ -4,9 +4,15 @@ import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 import BBText from '@/components/utils/BBText';
 import { useTheme } from '@react-navigation/native';
+import React, { useEffect } from 'react';
+import { router } from 'expo-router';
+import BBTextInput from '@/components/utils/BBTextInput';
+
 
 export default function TabOneScreen() {
   const theme = useTheme();
+
+
 
   return (
     <KeyboardAvoidingView
@@ -20,10 +26,13 @@ export default function TabOneScreen() {
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" >
 <View  style={styles.centeredComponent}>
     <BBText style={styles.seatedText}>Seat</BBText>
-    <TextInput
-    onSubmitEditing={(e) => console.log(e.nativeEvent.text)}
+    <BBTextInput
+    onSubmitEditing={(e) => router.push({
+      pathname: "/home",
+      params: {seat_id: e.nativeEvent.text}
+    })}
             style={styles.input}
-            placeholder="No#"
+            placeholder="NO#"
             placeholderTextColor="#888"
           />
 </View>
