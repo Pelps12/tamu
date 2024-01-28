@@ -3,3 +3,4 @@ Kivy_examples==2.2.1
 numpy==1.24.3
 opencv_python==4.8.1.78
 supervision
+ultralytics
