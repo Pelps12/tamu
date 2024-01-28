@@ -44,7 +44,7 @@ async def add_flight(token : str, input : FlightInput) ->Optional[FlightDataOut]
     profile = await Profile.find_one(Profile.token == token)
     if not profile:
         return None
-    data = await FlightData.find_one(FlightData.flight_number == input.flight_number, FlightData.profile.token == token)
+    data = await FlightData.find_one(FlightData.flight_number == input.flight_number, FlightData.profile.token == token, fetch_links=True)
     if not data:
         data= FlightData(profile=profile, flight_number=input.flight_number, seat_number=input.seat_number)
         await data.save()
