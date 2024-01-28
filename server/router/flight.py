@@ -87,7 +87,7 @@ async def flight_list() -> List[FlightData]:
 
 @router.post("/items")
 async def process_items(input : OpenCVDataInput) -> List[FlightData]:
-    flight_number = 0
+    flight_number = 1
     res = []
     for data in input.data:
         cache: dict[str, i] = {}

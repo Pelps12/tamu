@@ -36,9 +36,7 @@ export const RKProvider: React.FC<{
 }> = ({ children }) => {
 
 
-  const [queryClient] = React.useState<QueryClient>(() => new QueryClient({
-    
-  }));
+  const [queryClient] = React.useState<QueryClient>(() => new QueryClient());
  
   
 
