@@ -154,26 +154,28 @@ class MainLayout(BoxLayout):
             in enumerate(zones)
         ]
 
-        box_annotators = [
-            sv.BoxAnnotator(
+        label_annotator = [
+            sv.LabelAnnotator(
+                text_position=sv.Position.CENTER,
                 color=self.zones_colors[index], 
-                thickness=4, 
-                text_thickness=4, 
-                text_scale=2
-                )
+                # thickness=4, 
+                # text_thickness=4, 
+                # text_scale=2
+            )
             for index
             in range(len(polygons))
         ]
+
         results = model(frame)
         detections = sv.Detections.from_yolov5(results)
-        detections = detections[(detections.confidence > 0.5)]
+        detections = detections[(detections.confidence > 0.3)]
 
 
 
-        for zone, zone_annotator, box_annotator in zip(zones, zone_annotators, box_annotators):
+        for zone, zone_annotator, label_annotator in zip(zones, zone_annotators, label_annotator):
             mask = zone.trigger(detections=detections)
             detections_filtered = detections[mask]
-            frame = box_annotator.annotate(scene=frame, detections=detections_filtered, skip_label=True)
+            frame = label_annotator.annotate(scene=frame, detections=detections_filtered)
             frame = zone_annotator.annotate(scene=frame)
         
         return frame
