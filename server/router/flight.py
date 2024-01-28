@@ -89,13 +89,16 @@ async def flight_list() -> List[FlightData]:
 async def process_items(input : OpenCVDataInput) -> List[FlightData]:
     flight_number = 1
     res = []
+    print(input)
     for data in input.data:
         cache: dict[str, i] = {}
+        if len(data.items) == 0:
+            cache["other"] = 1
         for item in data.items:
             cache[item] = 1 if not cache.get(item) else cache[item] +1
         from_mongo = await FlightData.find_one(FlightData.flight_number == flight_number, FlightData.seat_number == data.zone , fetch_links=True)
         if not from_mongo:
-            return []
+            raise Exception("hello")
         mongo_cache = {}
         if from_mongo:
             for item in from_mongo.items:
@@ -116,4 +119,7 @@ async def process_items(input : OpenCVDataInput) -> List[FlightData]:
         await from_mongo.save()
         res.append(from_mongo)
     return res
-    pass
+
+@router.get("/lost_items")
+async def get_lost_items()->list[CheckedItem]:
+    data = FlightData.find_one()
