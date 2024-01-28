@@ -1,4 +1,4 @@
-CAMERA_SOURCE = 2
+CAMERA_SOURCE = 1
 
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
@@ -72,7 +72,7 @@ class MainLayout(BoxLayout):
             #np.array([[0, 0], [100, 0], [100, 100], [0, 100]]),  # Sample square zone
             None, None, None, None
         ]
-        self.zones_colors = [sv.Color.RED, sv.Color.GREEN, sv.Color.BLUE, sv.Color.YELLOW]
+        self.zones_colors = [sv.Color.RED, sv.Color.BLACK, sv.Color.BLUE, sv.Color.YELLOW]
         self.image_path = './temp/cameraTester.png'
         self.last_elapsed_time = time.time()
 
@@ -133,7 +133,7 @@ class MainLayout(BoxLayout):
         json_data = {
             "data": [
             {
-                "zone": 35,
+                "zone": 35 + i,
                 "items": items
             } for i, items in enumerate(items_in_zone)
         ]
